@@ -55,7 +55,29 @@ func (e *Env) IsSupport() bool {
 }
 
 // Init 执行初始化
-func (o Options) Init() error {
+func (o Options) Init(configFile string) error {
+	// 如果手动指定配置文件，将不会应用环境变量的配置
+	if configFile != "" {
+		if _, err := os.Stat(configFile); err != nil {
+			return err
+		}
+		viper.SetConfigFile(configFile)
+	} else {
+		o.initUseEnv()
+	}
+	Log.Infof("当前加载的置文件: %s", viper.ConfigFileUsed())
+	err := viper.ReadInConfig()
+	if err != nil {
+		if _, ok := err.(viper.ConfigParseError); ok {
+			return err
+		}
+		log.Error("read config error", err)
+	}
+	return nil
+}
+
+// 环境变量配置初始化
+func (o Options) initUseEnv() error {
 	var err error
 	env := GetEnv()
 	// 尝试从环境变量读取配置文件路径
@@ -90,13 +112,6 @@ func (o Options) Init() error {
 		if v.DefaultValue != nil {
 			viper.SetDefault(v.Key, v.DefaultValue)
 		}
-	}
-	err = viper.ReadInConfig()
-	if err != nil {
-		if _, ok := err.(viper.ConfigParseError); ok {
-			return err
-		}
-		log.Error("read config error", err)
 	}
 	return nil
 }

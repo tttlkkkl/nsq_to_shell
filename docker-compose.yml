@@ -5,13 +5,15 @@ services:
     image: nsq_to_shell
     container_name: sms
     restart: always
-    command: /nsqlookupd
     environment:
       - GO_MICRO_ENV=pd
     volumes:
       - ./conf/sms.toml:/app/pd.toml
   tel:
-    image: nsqio/nsq
+    image: nsq_to_shell
     container_name: tel
     restart: always
-    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
+    environment:
+      - GO_MICRO_ENV=pd
+    volumes:
+      - ./conf/tel.toml:/app/pd.toml

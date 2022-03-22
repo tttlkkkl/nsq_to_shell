@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
 
 	"nsq_exec_php/com"
 	"nsq_exec_php/service"
@@ -17,7 +19,23 @@ const (
 var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{}
+var rootCmd = &cobra.Command{
+	Use:   "app",
+	Short: "nsq shell 执行服务",
+	Long:  `启动一个消费服务，消费 nsq 中的队列消息，并传到 shell 中执行`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// 启动订阅服务
+		com.Log.Info("服务启动中...")
+		service.Start()
+		q := make(chan os.Signal)
+		signal.Notify(q, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM)
+		<-q
+		com.Log.Info("收到退出信号，准备关闭服务...")
+		if err := service.Stop(); err != nil {
+			com.Log.Fatalln("服务异常关闭")
+		}
+	},
+}
 
 // Execute 执行
 func Execute() {
@@ -29,12 +47,12 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./local.toml)")
 }
 
 // initConfig 初始化全局配置
 func initConfig() {
-	if err := com.InitOptions(); err != nil {
+	if err := com.InitOptions(cfgFile); err != nil {
 		com.Log.Fatalln("配置初始化出错：", err)
 	}
 	if err := service.InitNsq(); err != nil {

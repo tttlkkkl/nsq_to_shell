@@ -4,7 +4,7 @@ compile:
 
 run:
 	go build -o app
-	GO_MICRO_ENV=local ./app s $(s)
+	GO_MICRO_ENV=local ./app --config $(shell pwd)/dev.toml
 nsq:
 	docker-compose up
 send:

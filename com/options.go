@@ -1,7 +1,7 @@
 package com
 
 // InitOptions 初始化配置
-func InitOptions() error {
+func InitOptions(configFile string) error {
 	vp := Options{
 		{
 			Key:    "nsq.lookupAddress",
@@ -23,5 +23,5 @@ func InitOptions() error {
 			DefaultValue: 3,
 		},
 	}
-	return vp.Init()
+	return vp.Init(configFile)
 }
