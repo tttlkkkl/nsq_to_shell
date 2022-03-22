@@ -10,5 +10,4 @@ RUN chmod +x /usr/local/bin/app \
     && apk update && apk add --no-cache tzdata \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \ 
     && echo "Asia/Shanghai" > /etc/timezone 
-EXPOSE 9051 9052
 CMD app

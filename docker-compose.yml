@@ -1,39 +1,17 @@
 version: "3"
 
 services:
-  nsqlookupd:
-    image: nsqio/nsq
-    container_name: nsqlookupd
+  sms:
+    image: nsq_to_shell
+    container_name: sms
     restart: always
-    networks:
-      - ops
     command: /nsqlookupd
-    ports:
-      - "4160"
-      - "4161:4161"
-  nsqadmin:
+    environment:
+      - GO_MICRO_ENV=pd
+    volumes:
+      - ./conf/sms.toml:/app/pd.toml
+  tel:
     image: nsqio/nsq
-    container_name: nsqadmin
+    container_name: tel
     restart: always
-    networks:
-      - ops
     command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
-    depends_on:
-      - nsqlookupd  
-    ports:
-      - "4171:4171"
-  nsqd:
-    image: nsqio/nsq
-    container_name: nsqd
-    restart: always
-    networks:
-      - ops
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160  --broadcast-address=127.0.0.1
-    depends_on:
-      - nsqlookupd
-    ports:
-      - "4150:4150"
-      - "4151:4151"
-networks:
-  ops:
-    external: true
