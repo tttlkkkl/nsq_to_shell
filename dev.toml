@@ -1,0 +1,17 @@
+# nsq 配置
+[nsq]
+lookupAddress=["127.0.0.1:4161"]
+topic="xxx"
+channel="yyy"
+# 需要执行的命令,%s 将会被替换为 nsq 消息
+command=["bash","exec.sh","%s"]
+# 在管理后台显示的 nsq 消费者标志
+clientName="nsq-test"
+# 消息超时时间，超过这个时间客户端没有响应，那么服务器将会重新排队消息
+msgTimeout="10s"
+# 为客户端设置一个过期时间，执行超过这个时间那么消息将会被手动重排。不能大于 msgTimeout 的值否则没有意义
+handleTimeout="9s"
+# 尝试重新排队的次数，重排超过这个次数消息将会被直接丢弃
+attempts=5
+# 同一时间接收收的消息数量，即此消费者客户端最大的消息并发数
+maxInFlight=3
